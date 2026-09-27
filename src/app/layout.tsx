@@ -1,5 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "Muhammad Ali Wahid | Principal Full-Stack & AI/ML Systems Architect",
@@ -17,7 +22,6 @@ export const metadata: Metadata = {
     "30+ Years Experience"
   ],
   authors: [{ name: "Muhammad Ali Wahid" }],
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

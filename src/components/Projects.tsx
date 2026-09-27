@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Image from "next/image";
 import {
   ExternalLink,
-  Github,
   Layers,
   Sparkles,
   Server,
@@ -14,6 +13,7 @@ import {
   X,
   Code2
 } from "lucide-react";
+import { GithubIcon } from "./Icons";
 
 interface Project {
   id: string;
@@ -298,7 +298,7 @@ export default function Projects() {
                       className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                       aria-label="GitHub Repository"
                     >
-                      <Github className="w-4 h-4" />
+                      <GithubIcon className="w-4 h-4" />
                     </a>
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export default function Projects() {
                     className="btn-primary text-xs py-2 px-4 flex items-center gap-2"
                     style={{ textDecoration: "none" }}
                   >
-                    <Github className="w-3.5 h-3.5" />
+                    <GithubIcon className="w-3.5 h-3.5" />
                     <span>View Repository & Source</span>
                   </a>
                   <button
