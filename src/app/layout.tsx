@@ -7,19 +7,22 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Muhammad Ali Wahid | Principal Full-Stack & AI/ML Systems Architect",
+  title: "Muhammad Ali Wahid | Full-Stack Web Developer & AI/ML Engineer",
   description:
-    "Executive portfolio of Muhammad Ali Wahid — 30+ Years Architecting Enterprise Distributed Systems, Generative AI Platforms, Neural Workflows, and Cloud Infrastructure.",
+    "Official portfolio of Muhammad Ali Wahid — Computer Science student at Air University Islamabad, Full-Stack Developer (React, Next.js, TypeScript, C#/.NET, NestJS) and AI/ML Engineer (Python, YOLOv8, OpenCV).",
   keywords: [
     "Muhammad Ali Wahid",
-    "Principal Architect",
+    "Full-Stack Developer",
     "AI/ML Engineer",
-    "Distributed Systems",
-    "Full-Stack Architect",
     "Next.js",
-    "Machine Learning",
-    "Cloud Architecture",
-    "30+ Years Experience"
+    "React",
+    "TypeScript",
+    "C# .NET",
+    "NestJS",
+    "FastAPI",
+    "Air University",
+    "Islamabad",
+    "Python"
   ],
   authors: [{ name: "Muhammad Ali Wahid" }],
 };
@@ -35,7 +38,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
