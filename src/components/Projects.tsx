@@ -221,7 +221,10 @@ export default function Projects() {
               className="glass-card overflow-hidden flex flex-col group border border-slate-200 bg-white hover:border-blue-400 transition-all duration-300 shadow-md"
             >
               {/* Project Image Banner */}
-              <div className="relative h-56 sm:h-64 w-full bg-slate-100 overflow-hidden border-b border-slate-100">
+              <div
+                className="relative h-56 sm:h-64 w-full bg-slate-100 overflow-hidden border-b border-slate-100"
+                style={{ position: "relative", width: "100%", height: "240px", overflow: "hidden" }}
+              >
                 <Image
                   src={project.image}
                   alt={project.title}
