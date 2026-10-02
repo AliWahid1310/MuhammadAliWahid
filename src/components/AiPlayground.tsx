@@ -13,7 +13,10 @@ import {
   Sliders,
   Check,
   RefreshCw,
-  Gauge
+  Gauge,
+  ShieldAlert,
+  TrendingUp,
+  Camera
 } from "lucide-react";
 
 interface ModelPreset {
@@ -22,45 +25,49 @@ interface ModelPreset {
   type: string;
   parameters: string;
   baseTtft: number; // ms
-  baseTps: number; // tokens/sec
+  baseTps: number; // tokens or frames/sec
   vramBase: number; // GB
+  metricLabel: string;
   sampleOutput: string;
 }
 
 export default function AiPlayground() {
   const models: ModelPreset[] = [
     {
-      id: "nexus-70b",
-      name: "Nexus-LLM 70B (MoE)",
-      type: "Mixture-of-Experts Router",
-      parameters: "70 Billion (8x7B Active)",
-      baseTtft: 18.5,
-      baseTps: 124.6,
-      vramBase: 42,
+      id: "deepscam-fast",
+      name: "DeepScam Sentinel v2.4 (PitchFest 1st Place)",
+      type: "Conversational Fraud & Scam Anomaly Classifier",
+      parameters: "Transformer + BiLSTM Acoustic Embedding",
+      baseTtft: 14.2,
+      baseTps: 185.4,
+      vramBase: 6.8,
+      metricLabel: "predictions / sec",
       sampleOutput:
-        "Analyzing distributed state... Multi-region Raft cluster verified. Consensus established across 5 active leader nodes. Zero-copy IPC buffer allocated via eBPF kernel hook."
+        "Analyzing conversational waveform... Ingestion stream verified. PitchFest FAST-NUCES winning heuristics triggered: 99.4% probability of social engineering impersonation detected. Alert dispatched to fraud prevention channel."
     },
     {
-      id: "medvision-34b",
-      name: "BioVision Multimodal 34B",
-      type: "Medical Diagnostic Vision-Language",
-      parameters: "34 Billion Multimodal",
-      baseTtft: 24.2,
-      baseTps: 98.4,
-      vramBase: 26,
+      id: "visualboost-yolo",
+      name: "VisualBoost YOLOv8 Vision Pipeline",
+      type: "Real-Time Object Detection & Spatial Segmentation",
+      parameters: "YOLOv8x Deep PyTorch Backbone",
+      baseTtft: 22.5,
+      baseTps: 78.2,
+      vramBase: 12.4,
+      metricLabel: "frames / sec",
       sampleOutput:
-        "Processing DICOM volumetric tensor. Convolutional encoder detected 99.4% concordance with ground-truth pathology markers. Sub-millimeter lesion boundaries segmented."
+        "Processing multi-resolution frame buffer... TensorRT FP8 kernel executed across 8 parallel streams. Detected 14 foreground objects (person: 0.98, vehicle: 0.96). Sub-45ms spatial coordinates rasterized into client canvas."
     },
     {
-      id: "edge-slm-3b",
-      name: "EdgeSLM 3.8B Low Latency",
-      type: "Edge Quantized Transformer",
-      parameters: "3.8 Billion Parameters",
-      baseTtft: 3.2,
-      baseTps: 280.5,
-      vramBase: 4.8,
+      id: "stockai-ensemble",
+      name: "StockAI Pro Time-Series Ensemble",
+      type: "Multi-Model Market Volatility & Forecast Regressor",
+      parameters: "Ensemble Gradient Boosting + ARIMA",
+      baseTtft: 4.8,
+      baseTps: 340.0,
+      vramBase: 3.2,
+      metricLabel: "horizons / sec",
       sampleOutput:
-        "Edge telemetry validated. Sub-5ms anomaly detection filter applied. Real-time sensor stream classified nominal. Zero cloud backhaul required."
+        "Processing market pricing matrix... Rolling 90-day lookback initialized. Calculated Bollinger bandwidth and Exponential Moving Average divergence. Forecast horizon calculated with 94.1% historical confidence bounds."
     }
   ];
 
@@ -69,11 +76,10 @@ export default function AiPlayground() {
   const [batchSize, setBatchSize] = useState<number>(16);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [streamedText, setStreamedText] = useState<string>("");
-  const [currentTps, setCurrentTps] = useState<number>(124.6);
-  const [currentTtft, setCurrentTtft] = useState<number>(18.5);
-  const [currentVram, setCurrentVram] = useState<number>(42);
+  const [currentTps, setCurrentTps] = useState<number>(185.4);
+  const [currentTtft, setCurrentTtft] = useState<number>(14.2);
+  const [currentVram, setCurrentVram] = useState<number>(6.8);
 
-  // Compute metrics based on settings
   const computeMetrics = (model: ModelPreset, quant: string, batch: number) => {
     let tpsFactor = 1.0;
     let vramFactor = 1.0;
@@ -81,22 +87,22 @@ export default function AiPlayground() {
 
     if (quant === "INT4") {
       tpsFactor = 1.8;
-      vramFactor = 0.35;
-      ttftFactor = 0.7;
+      vramFactor = 0.38;
+      ttftFactor = 0.65;
     } else if (quant === "FP8") {
-      tpsFactor = 1.4;
+      tpsFactor = 1.45;
       vramFactor = 0.55;
-      ttftFactor = 0.85;
+      ttftFactor = 0.82;
     } else {
       tpsFactor = 1.0;
       vramFactor = 1.0;
       ttftFactor = 1.0;
     }
 
-    const batchScale = Math.log2(batch) * 0.2;
-    const finalTps = Number((model.baseTps * tpsFactor * (1 + batchScale * 0.4)).toFixed(1));
-    const finalTtft = Number((model.baseTtft * ttftFactor + batch * 0.4).toFixed(1));
-    const finalVram = Number((model.vramBase * vramFactor + batch * 0.3).toFixed(1));
+    const batchScale = Math.log2(batch) * 0.25;
+    const finalTps = Number((model.baseTps * tpsFactor * (1 + batchScale * 0.35)).toFixed(1));
+    const finalTtft = Number((model.baseTtft * ttftFactor + batch * 0.3).toFixed(1));
+    const finalVram = Number((model.vramBase * vramFactor + batch * 0.2).toFixed(1));
 
     return { finalTps, finalTtft, finalVram };
   };
@@ -111,7 +117,6 @@ export default function AiPlayground() {
     setCurrentTtft(finalTtft);
     setCurrentVram(finalVram);
 
-    // Stream tokens
     const words = selectedModel.sampleOutput.split(" ");
     let i = 0;
     const timer = setInterval(() => {
@@ -121,19 +126,18 @@ export default function AiPlayground() {
       } else {
         clearInterval(timer);
         setIsRunning(false);
-        // Small celebratory confetti trigger
         try {
           confetti({
-            particleCount: 25,
+            particleCount: 35,
             spread: 60,
-            origin: { y: 0.8 },
-            colors: ["#2563eb", "#7c3aed", "#10b981"]
+            origin: { y: 0.75 },
+            colors: ["#3b82f6", "#8b5cf6", "#10b981", "#38bdf8"]
           });
-        } catch (e) {
+        } catch {
           // ignore
         }
       }
-    }, 45);
+    }, 40);
   };
 
   useEffect(() => {
@@ -145,41 +149,70 @@ export default function AiPlayground() {
   }, [selectedModel, quantization, batchSize]);
 
   return (
-    <section id="ai-lab" className="py-20 lg:py-28 bg-slate-50/70 border-b border-slate-200 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="ai-lab" className="section-wrapper" style={{ background: "var(--bg-secondary)" }}>
+      <div className="container">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="badge-pill mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>INTERACTIVE AI BENCHMARK SANDBOX</span>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: "44px" }}>
+          <div className="section-tag">
+            <Sparkles style={{ width: "12px", height: "12px" }} />
+            <span>Interactive Neural Sandbox</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Live AI Inference & Latency Laboratory.
-          </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-600">
-            Simulate real-time token throughput, memory bandwidth, and time-to-first-token across production architectures engineered by Muhammad Ali Wahid.
+          <h2 className="section-title">Applied AI & Machine Learning Lab</h2>
+          <p className="section-subtitle" style={{ margin: "10px auto 0 auto" }}>
+            Simulate real-time inference latency, throughput acceleration, and memory footprint across models engineered and awarded to Muhammad Ali Wahid.
           </p>
         </div>
 
-        {/* The Interactive Lab Panel */}
-        <div className="glass-card overflow-hidden border border-slate-200 bg-white shadow-xl max-w-5xl mx-auto">
-          
-          {/* Top Engine Banner */}
-          <div className="bg-slate-900 text-white p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-sm">
-                <Cpu className="w-5 h-5" />
+        {/* Laboratory Card Console */}
+        <div
+          className="clean-card"
+          style={{
+            padding: 0,
+            overflow: "hidden",
+            border: "1px solid rgba(59, 130, 246, 0.3)",
+            boxShadow: "var(--shadow-lg), 0 0 40px rgba(59, 130, 246, 0.15)",
+            background: "rgba(10, 15, 26, 0.94)"
+          }}
+        >
+          {/* Top Engine Telemetry Bar */}
+          <div
+            style={{
+              padding: "16px 24px",
+              background: "rgba(15, 23, 42, 0.9)",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "16px"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "var(--radius-md)",
+                  background: "linear-gradient(135deg, #2563eb, #8b5cf6)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#ffffff",
+                  boxShadow: "0 0 16px rgba(59, 130, 246, 0.5)"
+                }}
+              >
+                <Cpu style={{ width: "20px", height: "20px" }} />
               </div>
               <div>
-                <div className="text-sm font-bold flex items-center gap-2">
-                  <span>Engine: TensorRT-LLM v0.12 + vLLM PagedAttention</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-semibold">
-                    ACTIVE
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.925rem", fontWeight: 700, color: "#f8fafc" }}>
+                  <span>Runtime: PyTorch + FastAPI Async Engine</span>
+                  <span style={{ fontSize: "0.65rem", padding: "2px 8px", borderRadius: "9999px", background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)", fontWeight: 700 }}>
+                    ACTIVE TELEMETRY
                   </span>
                 </div>
-                <div className="text-xs text-slate-400 font-mono">
-                  Hardware Target: 8x NVIDIA H100 80GB SXM5 • NVLink 900 GB/s
+                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                  Target: Containerized Docker Instance • Accelerated CUDA Kernels
                 </div>
               </div>
             </div>
@@ -187,50 +220,59 @@ export default function AiPlayground() {
             <button
               onClick={handleRunInference}
               disabled={isRunning}
-              className={`px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 transition-all ${
-                isRunning
-                  ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-md hover:shadow-blue-500/20"
-              }`}
+              className="btn-solid btn-glow"
+              style={{ padding: "10px 22px", fontSize: "0.825rem", gap: "8px" }}
             >
               {isRunning ? (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Streaming Tokens...</span>
+                  <RefreshCw style={{ width: "14px", height: "14px", animation: "spin 1s linear infinite" }} />
+                  <span>Streaming Inference...</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Run Realtime Benchmark</span>
+                  <Play style={{ width: "14px", height: "14px", fill: "currentColor" }} />
+                  <span>Execute Real-time Inference</span>
                 </>
               )}
             </button>
           </div>
 
-          <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Body: Left Controls & Right Gauges */}
+          <div style={{ padding: "28px", display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "28px" }}>
             
-            {/* Left Controls Column (4 cols) */}
-            <div className="lg:col-span-5 space-y-6">
+            {/* Left Controls */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
               
               {/* 1. Model Selector */}
               <div>
-                <label className="text-xs font-mono font-bold uppercase text-slate-500 tracking-wider block mb-2">
-                  Select Neural Architecture
+                <label style={{ display: "block", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "10px" }}>
+                  1. Select Neural Architecture
                 </label>
-                <div className="space-y-2">
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {models.map((m) => (
                     <button
                       key={m.id}
                       onClick={() => setSelectedModel(m)}
-                      className={`w-full p-3 rounded-xl text-left border transition-all text-xs ${
-                        selectedModel.id === m.id
-                          ? "bg-blue-50/70 border-blue-600 ring-1 ring-blue-600/30 text-slate-900"
-                          : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
-                      }`}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: "var(--radius-md)",
+                        textAlign: "left",
+                        border: selectedModel.id === m.id ? "1px solid var(--primary)" : "1px solid var(--border-light)",
+                        background: selectedModel.id === m.id ? "rgba(59, 130, 246, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                        boxShadow: selectedModel.id === m.id ? "0 0 16px rgba(59, 130, 246, 0.2)" : "none",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
                     >
-                      <div className="font-bold text-sm text-slate-900">{m.name}</div>
-                      <div className="text-slate-500 text-[11px] mt-0.5">{m.type}</div>
-                      <div className="font-mono text-blue-700 text-[10px] mt-1 font-semibold">{m.parameters}</div>
+                      <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "#f8fafc" }}>
+                        {m.name}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>
+                        {m.type}
+                      </div>
+                      <div style={{ fontSize: "0.7rem", fontFamily: "var(--font-mono)", color: "var(--primary-hover)", marginTop: "4px" }}>
+                        {m.parameters}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -238,19 +280,27 @@ export default function AiPlayground() {
 
               {/* 2. Quantization Precision */}
               <div>
-                <label className="text-xs font-mono font-bold uppercase text-slate-500 tracking-wider block mb-2">
-                  Quantization Precision
+                <label style={{ display: "block", fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "10px" }}>
+                  2. Quantization Precision
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}>
                   {(["FP16", "FP8", "INT4"] as const).map((q) => (
                     <button
                       key={q}
                       onClick={() => setQuantization(q)}
-                      className={`py-2 px-3 rounded-lg text-xs font-mono font-bold border transition-colors ${
-                        quantization === q
-                          ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                          : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                      }`}
+                      style={{
+                        padding: "8px",
+                        fontSize: "0.78rem",
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 700,
+                        borderRadius: "var(--radius-sm)",
+                        border: quantization === q ? "1px solid var(--accent-purple)" : "1px solid var(--border-light)",
+                        background: quantization === q ? "var(--accent-purple)" : "rgba(255, 255, 255, 0.04)",
+                        color: quantization === q ? "#ffffff" : "var(--text-muted)",
+                        boxShadow: quantization === q ? "0 0 12px rgba(139, 92, 246, 0.4)" : "none",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease"
+                      }}
                     >
                       {q}
                     </button>
@@ -258,14 +308,14 @@ export default function AiPlayground() {
                 </div>
               </div>
 
-              {/* 3. Concurrency / Batch Size */}
+              {/* 3. Concurrency Batch Slider */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-mono font-bold uppercase text-slate-500 tracking-wider">
-                    Concurrent Batch Requests
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <label style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+                    3. Concurrent Invocations
                   </label>
-                  <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                    {batchSize} reqs
+                  <span style={{ fontSize: "0.75rem", fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--primary-hover)", background: "var(--primary-light)", padding: "2px 8px", borderRadius: "var(--radius-sm)" }}>
+                    {batchSize} streams
                   </span>
                 </div>
                 <input
@@ -275,73 +325,112 @@ export default function AiPlayground() {
                   step="1"
                   value={batchSize}
                   onChange={(e) => setBatchSize(Number(e.target.value))}
-                  className="w-full accent-blue-600 cursor-pointer"
+                  style={{ width: "100%", accentColor: "var(--primary)", cursor: "pointer" }}
                 />
-                <div className="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", fontFamily: "var(--font-mono)", color: "var(--text-light)", marginTop: "4px" }}>
                   <span>1 (Single Stream)</span>
-                  <span>32</span>
-                  <span>64 (High Throughput)</span>
+                  <span>32 Concurrent</span>
+                  <span>64 (Batch Load)</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Right Telemetry & Output Column (7 cols) */}
-            <div className="lg:col-span-7 flex flex-col gap-6">
+            {/* Right Telemetry & Output */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               
-              {/* Telemetry Gauge Cards */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="text-[11px] font-mono text-slate-500 uppercase">Throughput</div>
-                  <div className="text-2xl font-extrabold text-slate-900 font-mono mt-1">
+              {/* 3 Metrics Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+                <div style={{ padding: "14px", borderRadius: "var(--radius-md)", background: "rgba(255, 255, 255, 0.03)", border: "1px solid var(--border-light)" }}>
+                  <div style={{ fontSize: "0.7rem", fontFamily: "var(--font-mono)", color: "var(--text-muted)", textTransform: "uppercase" }}>Throughput</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--primary-hover)", marginTop: "4px" }}>
                     {currentTps}
                   </div>
-                  <div className="text-[10px] text-blue-600 font-mono mt-0.5">tokens / sec</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{selectedModel.metricLabel}</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="text-[11px] font-mono text-slate-500 uppercase">TTFT (Latency)</div>
-                  <div className="text-2xl font-extrabold text-slate-900 font-mono mt-1">
+                <div style={{ padding: "14px", borderRadius: "var(--radius-md)", background: "rgba(255, 255, 255, 0.03)", border: "1px solid var(--border-light)" }}>
+                  <div style={{ fontSize: "0.7rem", fontFamily: "var(--font-mono)", color: "var(--text-muted)", textTransform: "uppercase" }}>Latency (TTFT)</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent-emerald)", marginTop: "4px" }}>
                     {currentTtft}
                   </div>
-                  <div className="text-[10px] text-emerald-600 font-mono mt-0.5">milliseconds</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>milliseconds</div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="text-[11px] font-mono text-slate-500 uppercase">VRAM Allocation</div>
-                  <div className="text-2xl font-extrabold text-slate-900 font-mono mt-1">
+                <div style={{ padding: "14px", borderRadius: "var(--radius-md)", background: "rgba(255, 255, 255, 0.03)", border: "1px solid var(--border-light)" }}>
+                  <div style={{ fontSize: "0.7rem", fontFamily: "var(--font-mono)", color: "var(--text-muted)", textTransform: "uppercase" }}>VRAM Footprint</div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--accent-purple)", marginTop: "4px" }}>
                     {currentVram}
                   </div>
-                  <div className="text-[10px] text-purple-600 font-mono mt-0.5">GB utilized</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>GB active memory</div>
                 </div>
               </div>
 
-              {/* Live Streaming Token Box */}
-              <div className="flex-1 flex flex-col rounded-xl bg-slate-900 border border-slate-800 p-4 text-xs font-mono text-slate-200 shadow-inner min-h-[200px]">
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-[11px] text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-emerald-300 font-semibold">STREAMING INFERENCE CONSOLE</span>
+              {/* Streaming Output Box */}
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: "var(--radius-md)",
+                  background: "rgba(0, 0, 0, 0.5)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  padding: "16px",
+                  fontSize: "0.825rem",
+                  fontFamily: "var(--font-mono)",
+                  color: "#f8fafc",
+                  minHeight: "180px",
+                  boxShadow: "inset 0 2px 8px rgba(0, 0, 0, 0.5)"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px", marginBottom: "12px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span className="pulse-circle" style={{ width: "6px", height: "6px" }} />
+                    <span style={{ color: "#34d399", fontWeight: 700 }}>LIVE INFERENCE STREAM</span>
                   </div>
-                  <span>PRECISION: {quantization}</span>
+                  <span>FORMAT: {quantization}</span>
                 </div>
 
-                <div className="flex-1 leading-relaxed text-slate-100 whitespace-pre-wrap">
+                <div style={{ flex: 1, lineHeight: "1.7", whiteSpace: "pre-wrap", color: "#e2e8f0" }}>
                   {streamedText}
-                  {isRunning && <span className="inline-block w-2 h-4 bg-blue-500 ml-1 animate-pulse align-middle" />}
+                  {isRunning && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: "8px",
+                        height: "15px",
+                        background: "var(--primary)",
+                        marginLeft: "6px",
+                        animation: "pulseGlow 0.6s infinite",
+                        verticalAlign: "middle"
+                      }}
+                    />
+                  )}
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
-                  <span>Cosine Semantic Score: 0.992</span>
-                  <span>KV Cache: PagedAttention v2 Enabled</span>
+                <div style={{ paddingTop: "10px", marginTop: "10px", borderTop: "1px solid rgba(255, 255, 255, 0.05)", display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "var(--text-light)" }}>
+                  <span>Verified Architecture: Air University CS</span>
+                  <span>Confidence Metric: 99.4%</span>
                 </div>
               </div>
 
-              {/* Architectural insight */}
-              <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-900 flex items-start gap-2.5">
-                <Gauge className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+              {/* Engineering Insight */}
+              <div
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "var(--radius-md)",
+                  background: "rgba(59, 130, 246, 0.1)",
+                  border: "1px solid rgba(59, 130, 246, 0.25)",
+                  fontSize: "0.8rem",
+                  color: "#93c5fd",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "10px"
+                }}
+              >
+                <Gauge style={{ width: "16px", height: "16px", color: "var(--primary-hover)", flexShrink: 0, marginTop: "2px" }} />
                 <span>
-                  <strong>Architectural Note:</strong> By coupling FP8 quantization with PagedAttention continuous batching, memory bandwidth bottlenecks are alleviated by up to <strong>3.2x</strong> compared to naive FP16 inference.
+                  <strong>Engineering Note:</strong> By combining INT4/FP8 quantization with continuous async batching in FastAPI, server memory bandwidth is optimized by up to <strong>2.8x</strong> while retaining detection precision.
                 </span>
               </div>
 
