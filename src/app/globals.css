@@ -647,27 +647,46 @@ body {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-33.333%);
   }
 }
 
 .marquee-track {
-  animation: marquee-scroll 28s linear infinite;
+  animation: marquee-scroll 26s linear infinite;
+  will-change: transform;
 }
 
 .marquee-track:hover {
   animation-play-state: paused;
 }
 
-.marquee-item:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-medium) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+.marquee-item {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.marquee-item:hover .marquee-logo {
-  color: var(--text-primary) !important;
-  opacity: 1 !important;
+[data-theme="dark"] .marquee-item {
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.marquee-item:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="dark"] .marquee-item:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+}
+
+.brand-actual-logo {
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.marquee-item:hover .brand-actual-logo {
   transform: scale(1.04);
 }
