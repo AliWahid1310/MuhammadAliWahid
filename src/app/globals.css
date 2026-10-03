@@ -640,3 +640,34 @@ body {
     padding: 6px 10px;
   }
 }
+
+/* Brand Marquee Infinite Scroll */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.marquee-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.marquee-item:hover .marquee-logo {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+  transform: scale(1.04);
+}

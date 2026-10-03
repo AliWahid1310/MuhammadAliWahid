@@ -5,7 +5,7 @@ import RealSkills from "@/components/RealSkills";
 import RealProjects from "@/components/RealProjects";
 import AiPlayground from "@/components/AiPlayground";
 import RealExperience from "@/components/RealExperience";
-import RealAwards from "@/components/RealAwards";
+import BrandMarquee from "@/components/BrandMarquee";
 import RealContact from "@/components/RealContact";
 import Footer from "@/components/Footer";
 
@@ -19,7 +19,7 @@ export default function Home() {
         <RealProjects />
         <AiPlayground />
         <RealExperience />
-        <RealAwards />
+        <BrandMarquee />
         <RealContact />
       </main>
       <Footer />
