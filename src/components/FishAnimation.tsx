@@ -40,18 +40,18 @@ export default function FishAnimation() {
     };
     window.addEventListener("resize", handleResize);
 
-    // Goldfish color palettes [body, belly, accent, fin]
+    // Monochrome B&W palettes [body, belly, accent, fin]
     const variants = [
-      // Classic orange goldfish
-      { body: "#f97316", belly: "#fed7aa", accent: "#ea580c", fin: "rgba(251,146,60,0.7)" },
-      // Red-white fancy goldfish
-      { body: "#ef4444", belly: "#fecaca", accent: "#b91c1c", fin: "rgba(252,165,165,0.7)" },
-      // Golden yellow goldfish
-      { body: "#eab308", belly: "#fef08a", accent: "#ca8a04", fin: "rgba(253,224,71,0.7)" },
-      // Deep orange-red goldfish
-      { body: "#f97316", belly: "#ffedd5", accent: "#c2410c", fin: "rgba(253,186,116,0.7)" },
-      // Calico red-orange
-      { body: "#fb923c", belly: "#fff7ed", accent: "#ea580c", fin: "rgba(254,215,170,0.7)" },
+      // Deep black
+      { body: "#111111", belly: "#3f3f46", accent: "#09090b", fin: "rgba(39,39,42,0.7)" },
+      // Dark charcoal
+      { body: "#27272a", belly: "#52525b", accent: "#18181b", fin: "rgba(63,63,70,0.7)" },
+      // Medium grey
+      { body: "#52525b", belly: "#a1a1aa", accent: "#3f3f46", fin: "rgba(82,82,91,0.7)" },
+      // Near black
+      { body: "#18181b", belly: "#3f3f46", accent: "#09090b", fin: "rgba(24,24,27,0.7)" },
+      // Slate grey
+      { body: "#3f3f46", belly: "#71717a", accent: "#27272a", fin: "rgba(63,63,70,0.7)" },
     ];
 
     // 5 goldfish (reduced from 7)
@@ -86,10 +86,10 @@ export default function FishAnimation() {
       c.rotate(fish.angle + Math.PI / 2);
       c.globalAlpha = fish.opacity;
 
-      // Glow / soft shadow
-      c.shadowColor = v.body;
-      c.shadowBlur = 8;
-      c.shadowOffsetY = 0;
+      // Soft ink shadow
+      c.shadowColor = "rgba(0,0,0,0.2)";
+      c.shadowBlur = 10;
+      c.shadowOffsetY = 3;
 
       const finAmp = Math.sin(time * 4 + fish.finPhase) * 0.22;
 
