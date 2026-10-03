@@ -24,8 +24,10 @@ export default function FishAnimation() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const ctxRaw = canvas.getContext("2d");
+    if (!ctxRaw) return;
+    // Capture as non-null so TypeScript narrows correctly in nested functions
+    const c: CanvasRenderingContext2D = ctxRaw;
 
     let animationFrameId: number;
     let width = (canvas.width = canvas.parentElement?.clientWidth || 800);
@@ -79,141 +81,141 @@ export default function FishAnimation() {
       const L = fish.length;
       const W = fish.width;
 
-      ctx.save();
-      ctx.translate(fish.x, fish.y);
-      ctx.rotate(fish.angle + Math.PI / 2);
-      ctx.globalAlpha = fish.opacity;
+      c.save();
+      c.translate(fish.x, fish.y);
+      c.rotate(fish.angle + Math.PI / 2);
+      c.globalAlpha = fish.opacity;
 
       // Glow / soft shadow
-      ctx.shadowColor = v.body;
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 0;
+      c.shadowColor = v.body;
+      c.shadowBlur = 8;
+      c.shadowOffsetY = 0;
 
       const finAmp = Math.sin(time * 4 + fish.finPhase) * 0.22;
 
       // --- Pectoral fins (fluttering) ---
       // Left pec fin
-      ctx.save();
-      ctx.translate(-W * 0.5, L * 0.18);
-      ctx.rotate(-0.45 + finAmp);
-      const lgLeft = ctx.createLinearGradient(0, 0, -L * 0.3, L * 0.15);
+      c.save();
+      c.translate(-W * 0.5, L * 0.18);
+      c.rotate(-0.45 + finAmp);
+      const lgLeft = c.createLinearGradient(0, 0, -L * 0.3, L * 0.15);
       lgLeft.addColorStop(0, v.fin);
       lgLeft.addColorStop(1, "rgba(255,255,255,0.05)");
-      ctx.fillStyle = lgLeft;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, L * 0.26, W * 0.3, -Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      c.fillStyle = lgLeft;
+      c.beginPath();
+      c.ellipse(0, 0, L * 0.26, W * 0.3, -Math.PI / 4, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
 
       // Right pec fin
-      ctx.save();
-      ctx.translate(W * 0.5, L * 0.18);
-      ctx.rotate(0.45 - finAmp);
-      const lgRight = ctx.createLinearGradient(0, 0, L * 0.3, L * 0.15);
+      c.save();
+      c.translate(W * 0.5, L * 0.18);
+      c.rotate(0.45 - finAmp);
+      const lgRight = c.createLinearGradient(0, 0, L * 0.3, L * 0.15);
       lgRight.addColorStop(0, v.fin);
       lgRight.addColorStop(1, "rgba(255,255,255,0.05)");
-      ctx.fillStyle = lgRight;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, L * 0.26, W * 0.3, Math.PI / 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      c.fillStyle = lgRight;
+      c.beginPath();
+      c.ellipse(0, 0, L * 0.26, W * 0.3, Math.PI / 4, 0, Math.PI * 2);
+      c.fill();
+      c.restore();
 
       // --- Dorsal fin ---
-      ctx.save();
-      ctx.translate(0, -L * 0.05);
+      c.save();
+      c.translate(0, -L * 0.05);
       const dorsalAnim = Math.sin(time * 4 + fish.finPhase + 1) * 0.1;
-      ctx.rotate(dorsalAnim);
-      const lgDorsal = ctx.createLinearGradient(0, -L * 0.22, 0, 0);
+      c.rotate(dorsalAnim);
+      const lgDorsal = c.createLinearGradient(0, -L * 0.22, 0, 0);
       lgDorsal.addColorStop(0, v.fin);
       lgDorsal.addColorStop(1, v.body);
-      ctx.fillStyle = lgDorsal;
-      ctx.beginPath();
-      ctx.moveTo(-W * 0.35, 0);
-      ctx.quadraticCurveTo(-W * 0.1, -L * 0.22, W * 0.1, -L * 0.18);
-      ctx.quadraticCurveTo(W * 0.35, -L * 0.05, W * 0.3, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
+      c.fillStyle = lgDorsal;
+      c.beginPath();
+      c.moveTo(-W * 0.35, 0);
+      c.quadraticCurveTo(-W * 0.1, -L * 0.22, W * 0.1, -L * 0.18);
+      c.quadraticCurveTo(W * 0.35, -L * 0.05, W * 0.3, 0);
+      c.closePath();
+      c.fill();
+      c.restore();
 
       // --- Main body gradient ---
-      const bodyGrad = ctx.createLinearGradient(-W, 0, W, 0);
+      const bodyGrad = c.createLinearGradient(-W, 0, W, 0);
       bodyGrad.addColorStop(0, v.accent);
       bodyGrad.addColorStop(0.35, v.body);
       bodyGrad.addColorStop(0.65, v.body);
       bodyGrad.addColorStop(1, v.accent);
 
-      ctx.fillStyle = bodyGrad;
-      ctx.beginPath();
-      ctx.moveTo(0, -L * 0.5);
-      ctx.bezierCurveTo(W * 0.85, -L * 0.18, W * 0.85, L * 0.28, 0, L * 0.5);
-      ctx.bezierCurveTo(-W * 0.85, L * 0.28, -W * 0.85, -L * 0.18, 0, -L * 0.5);
-      ctx.fill();
+      c.fillStyle = bodyGrad;
+      c.beginPath();
+      c.moveTo(0, -L * 0.5);
+      c.bezierCurveTo(W * 0.85, -L * 0.18, W * 0.85, L * 0.28, 0, L * 0.5);
+      c.bezierCurveTo(-W * 0.85, L * 0.28, -W * 0.85, -L * 0.18, 0, -L * 0.5);
+      c.fill();
 
       // Belly highlight
-      const bellyGrad = ctx.createLinearGradient(-W * 0.3, L * 0.05, W * 0.3, L * 0.3);
+      const bellyGrad = c.createLinearGradient(-W * 0.3, L * 0.05, W * 0.3, L * 0.3);
       bellyGrad.addColorStop(0, v.belly);
       bellyGrad.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = bellyGrad;
-      ctx.beginPath();
-      ctx.ellipse(0, L * 0.12, W * 0.4, L * 0.22, 0, 0, Math.PI * 2);
-      ctx.fill();
+      c.fillStyle = bellyGrad;
+      c.beginPath();
+      c.ellipse(0, L * 0.12, W * 0.4, L * 0.22, 0, 0, Math.PI * 2);
+      c.fill();
 
       // Eye
-      ctx.fillStyle = "#1a1a1a";
-      ctx.beginPath();
-      ctx.arc(W * 0.35, -L * 0.3, W * 0.22, 0, Math.PI * 2);
-      ctx.fill();
+      c.fillStyle = "#1a1a1a";
+      c.beginPath();
+      c.arc(W * 0.35, -L * 0.3, W * 0.22, 0, Math.PI * 2);
+      c.fill();
       // Eye shine
-      ctx.fillStyle = "rgba(255,255,255,0.7)";
-      ctx.beginPath();
-      ctx.arc(W * 0.35 + W * 0.07, -L * 0.3 - W * 0.06, W * 0.08, 0, Math.PI * 2);
-      ctx.fill();
+      c.fillStyle = "rgba(255,255,255,0.7)";
+      c.beginPath();
+      c.arc(W * 0.35 + W * 0.07, -L * 0.3 - W * 0.06, W * 0.08, 0, Math.PI * 2);
+      c.fill();
 
       // Scale texture (subtle arc lines)
-      ctx.strokeStyle = "rgba(0,0,0,0.07)";
-      ctx.lineWidth = 0.5;
+      c.strokeStyle = "rgba(0,0,0,0.07)";
+      c.lineWidth = 0.5;
       for (let s = 0; s < 3; s++) {
         const sy = -L * 0.15 + s * L * 0.18;
         const sw = W * (0.5 - s * 0.08);
-        ctx.beginPath();
-        ctx.arc(0, sy, sw, 0.2, Math.PI - 0.2);
-        ctx.stroke();
+        c.beginPath();
+        c.arc(0, sy, sw, 0.2, Math.PI - 0.2);
+        c.stroke();
       }
 
       // --- Tail / Caudal fin (animated) ---
-      ctx.save();
-      ctx.translate(0, L * 0.5);
-      ctx.rotate(fish.tailAngle);
+      c.save();
+      c.translate(0, L * 0.5);
+      c.rotate(fish.tailAngle);
 
       // Caudal peduncle
-      const pedGrad = ctx.createLinearGradient(0, 0, 0, 10);
+      const pedGrad = c.createLinearGradient(0, 0, 0, 10);
       pedGrad.addColorStop(0, v.body);
       pedGrad.addColorStop(1, v.accent);
-      ctx.fillStyle = pedGrad;
-      ctx.beginPath();
-      ctx.ellipse(0, 5, W * 0.22, 5, 0, 0, Math.PI * 2);
-      ctx.fill();
+      c.fillStyle = pedGrad;
+      c.beginPath();
+      c.ellipse(0, 5, W * 0.22, 5, 0, 0, Math.PI * 2);
+      c.fill();
 
       // Fan tail – two lobes
-      const tailGrad = ctx.createLinearGradient(0, 6, 0, 26);
+      const tailGrad = c.createLinearGradient(0, 6, 0, 26);
       tailGrad.addColorStop(0, v.body);
       tailGrad.addColorStop(1, v.fin);
-      ctx.fillStyle = tailGrad;
-      ctx.beginPath();
-      ctx.moveTo(0, 6);
-      ctx.quadraticCurveTo(-W * 0.65, 16, -W * 0.85, 26);
-      ctx.quadraticCurveTo(0, 20, 0, 14);
-      ctx.quadraticCurveTo(0, 20, W * 0.85, 26);
-      ctx.quadraticCurveTo(W * 0.65, 16, 0, 6);
-      ctx.fill();
+      c.fillStyle = tailGrad;
+      c.beginPath();
+      c.moveTo(0, 6);
+      c.quadraticCurveTo(-W * 0.65, 16, -W * 0.85, 26);
+      c.quadraticCurveTo(0, 20, 0, 14);
+      c.quadraticCurveTo(0, 20, W * 0.85, 26);
+      c.quadraticCurveTo(W * 0.65, 16, 0, 6);
+      c.fill();
 
-      ctx.restore();
-      ctx.restore();
+      c.restore();
+      c.restore();
     }
 
     const render = () => {
       time += 0.025;
-      ctx.clearRect(0, 0, width, height);
+      c.clearRect(0, 0, width, height);
 
       fishes.forEach((fish) => {
         // Tail oscillation
