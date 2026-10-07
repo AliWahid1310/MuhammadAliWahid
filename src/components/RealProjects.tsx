@@ -24,7 +24,8 @@ interface Project {
   tagline: string;
   category: "ai" | "fullstack" | "backend" | "ecommerce" | "design";
   badge: string;
-  snapshot: string; // path to screenshot image — empty string = placeholder
+  snapshot: string; // path to screenshot image — empty string = fallback to live URL or placeholder
+  liveUrl?: string; // live deployed URL
   techStack: string[];
   githubUrl: string;
   icon: React.ElementType;
@@ -36,6 +37,32 @@ export default function RealProjects() {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const projects: Project[] = [
+    {
+      id: "circl",
+      title: "Circl",
+      tagline: "Campus community hub for student societies, events & real-time connections",
+      category: "fullstack",
+      badge: "Live App",
+      snapshot: "/images/circl-preview.png",
+      liveUrl: "https://global-app-gamma.vercel.app/",
+      techStack: ["Next.js", "Supabase", "PostgreSQL", "Tailwind CSS"],
+      githubUrl: "https://github.com/AliWahid1310",
+      icon: Users,
+      accent: "#10b981",
+    },
+    {
+      id: "gallery-wall-planner",
+      title: "Gallery Wall Planner",
+      tagline: "Interactive 3D wall art configurator & room visualizer for Laboo Studio",
+      category: "ecommerce",
+      badge: "Live App",
+      snapshot: "/images/gallery-wall-preview.png",
+      liveUrl: "https://gallery-wall-planner.vercel.app/",
+      techStack: ["React", "Vite", "Canvas API", "Tailwind CSS"],
+      githubUrl: "https://github.com/AliWahid1310",
+      icon: ShoppingBag,
+      accent: "#f59e0b",
+    },
     {
       id: "visualboost-ai",
       title: "VisualBoost AI",
@@ -59,30 +86,6 @@ export default function RealProjects() {
       githubUrl: "https://github.com/AliWahid1310",
       icon: Sparkles,
       accent: "#3b82f6",
-    },
-    {
-      id: "global-app",
-      title: "Global App",
-      tagline: "Campus community hub with Supabase auth & Cloudinary CDN",
-      category: "fullstack",
-      badge: "Full-Stack",
-      snapshot: "",
-      techStack: ["Next.js", "Supabase", "PostgreSQL", "Cloudinary"],
-      githubUrl: "https://github.com/AliWahid1310",
-      icon: Users,
-      accent: "#10b981",
-    },
-    {
-      id: "interior-configurator",
-      title: "Interior Configurator",
-      tagline: "3D product customizer as a Shopify theme extension",
-      category: "ecommerce",
-      badge: "Shopify 3D",
-      snapshot: "",
-      techStack: ["React", "Vite", "Shopify API", "Canvas"],
-      githubUrl: "https://github.com/AliWahid1310",
-      icon: ShoppingBag,
-      accent: "#f59e0b",
     },
     {
       id: "booknest",
@@ -134,6 +137,14 @@ export default function RealProjects() {
     },
   ];
 
+  const getPreviewSource = (proj: Project) => {
+    if (proj.snapshot) return proj.snapshot;
+    if (proj.liveUrl) {
+      return `https://api.microlink.io/?url=${encodeURIComponent(proj.liveUrl)}&screenshot=true&meta=false&embed=screenshot.url`;
+    }
+    return "";
+  };
+
   const filtered = projects
     .filter((p) => filter === "all" || p.category === filter)
     .filter(
@@ -166,7 +177,7 @@ export default function RealProjects() {
             </div>
             <h2 className="section-title">Featured Projects</h2>
             <p className="section-subtitle">
-              Full-stack apps, AI pipelines, and real-time systems.
+              Full-stack apps, AI pipelines, and interactive web configurators.
             </p>
           </div>
 
@@ -217,11 +228,11 @@ export default function RealProjects() {
           }}
         >
           {[
-            { id: "all", label: "All (8)" },
-            { id: "ai", label: "AI & ML" },
+            { id: "all", label: `All (${projects.length})` },
             { id: "fullstack", label: "Full-Stack" },
+            { id: "ecommerce", label: "E-Commerce / 3D" },
+            { id: "ai", label: "AI & ML" },
             { id: "backend", label: "Backend" },
-            { id: "ecommerce", label: "E-Commerce" },
             { id: "design", label: "Design" },
           ].map((tab) => (
             <button
@@ -250,6 +261,8 @@ export default function RealProjects() {
         <div className="grid-2">
           {filtered.map((proj) => {
             const Icon = proj.icon;
+            const previewSrc = getPreviewSource(proj);
+
             return (
               <div
                 key={proj.id}
@@ -287,16 +300,38 @@ export default function RealProjects() {
                     overflow: "hidden",
                   }}
                 >
-                  {proj.snapshot ? (
-                    <img
-                      src={proj.snapshot}
-                      alt={`${proj.title} screenshot`}
+                  {previewSrc ? (
+                    <a
+                      href={proj.liveUrl || proj.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
+                        display: "block",
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        position: "relative",
+                        overflow: "hidden",
                       }}
-                    />
+                      title={proj.liveUrl ? `Open ${proj.title} live preview` : proj.title}
+                    >
+                      <img
+                        src={previewSrc}
+                        alt={`${proj.title} screenshot`}
+                        loading="lazy"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          transition: "transform 0.4s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.transform = "scale(1.04)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.transform = "scale(1)";
+                        }}
+                      />
+                    </a>
                   ) : (
                     <div
                       style={{
@@ -324,6 +359,42 @@ export default function RealProjects() {
                     </div>
                   )}
 
+                  {/* Live status indicator */}
+                  {proj.liveUrl && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        left: "10px",
+                        fontSize: "0.65rem",
+                        fontWeight: 700,
+                        fontFamily: "var(--font-mono)",
+                        color: "#059669",
+                        background: "rgba(255,255,255,0.95)",
+                        backdropFilter: "blur(6px)",
+                        padding: "3px 8px",
+                        borderRadius: "var(--radius-full)",
+                        border: "1px solid rgba(16,185,129,0.3)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "6px",
+                          height: "6px",
+                          borderRadius: "50%",
+                          backgroundColor: "#10b981",
+                          boxShadow: "0 0 6px #10b981",
+                        }}
+                      />
+                      LIVE DEMO
+                    </span>
+                  )}
+
                   {/* Badge overlay */}
                   <span
                     style={{
@@ -334,11 +405,12 @@ export default function RealProjects() {
                       fontWeight: 700,
                       fontFamily: "var(--font-mono)",
                       color: proj.accent,
-                      background: "rgba(255,255,255,0.9)",
+                      background: "rgba(255,255,255,0.92)",
                       backdropFilter: "blur(6px)",
                       padding: "3px 10px",
                       borderRadius: "var(--radius-full)",
                       border: `1px solid ${proj.accent}40`,
+                      pointerEvents: "none",
                     }}
                   >
                     {proj.badge}
@@ -428,6 +500,7 @@ export default function RealProjects() {
                       paddingTop: "12px",
                       borderTop: "1px solid var(--border-light)",
                       marginTop: "auto",
+                      gap: "8px",
                     }}
                   >
                     <a
@@ -445,34 +518,66 @@ export default function RealProjects() {
                       <span>Source</span>
                     </a>
 
-                    <a
-                      href={proj.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        fontSize: "0.78rem",
-                        fontWeight: 600,
-                        color: proj.accent,
-                        textDecoration: "none",
-                        transition: "gap 0.2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.gap =
-                          "8px";
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.gap =
-                          "4px";
-                      }}
-                    >
-                      <span>View Project</span>
-                      <ArrowUpRight
-                        style={{ width: "14px", height: "14px" }}
-                      />
-                    </a>
+                    {proj.liveUrl ? (
+                      <a
+                        href={proj.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          fontSize: "0.78rem",
+                          fontWeight: 700,
+                          color: "#fff",
+                          backgroundColor: proj.accent,
+                          padding: "6px 12px",
+                          borderRadius: "var(--radius-sm)",
+                          textDecoration: "none",
+                          transition: "opacity 0.2s ease, transform 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLAnchorElement).style.opacity = "0.9";
+                          (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLAnchorElement).style.opacity = "1";
+                          (e.currentTarget as HTMLAnchorElement).style.transform = "none";
+                        }}
+                      >
+                        <span>Live Demo</span>
+                        <ExternalLink style={{ width: "13px", height: "13px" }} />
+                      </a>
+                    ) : (
+                      <a
+                        href={proj.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          fontSize: "0.78rem",
+                          fontWeight: 600,
+                          color: proj.accent,
+                          textDecoration: "none",
+                          transition: "gap 0.2s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLAnchorElement).style.gap =
+                            "8px";
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLAnchorElement).style.gap =
+                            "4px";
+                        }}
+                      >
+                        <span>View Project</span>
+                        <ArrowUpRight
+                          style={{ width: "14px", height: "14px" }}
+                        />
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
