@@ -43,7 +43,7 @@ export default function RealProjects() {
       tagline: "Campus community hub for student societies, events & real-time connections",
       category: "fullstack",
       badge: "Live App",
-      snapshot: "/images/circl-preview.png",
+      snapshot: "/images/C.jpg",
       liveUrl: "https://global-app-gamma.vercel.app/",
       techStack: ["Next.js", "Supabase", "PostgreSQL", "Tailwind CSS"],
       githubUrl: "https://github.com/AliWahid1310",
@@ -56,7 +56,7 @@ export default function RealProjects() {
       tagline: "Interactive 3D wall art configurator & room visualizer for Laboo Studio",
       category: "ecommerce",
       badge: "Live App",
-      snapshot: "/images/gallery-wall-preview.png",
+      snapshot: "/images/GWP.jpg",
       liveUrl: "https://gallery-wall-planner.vercel.app/",
       techStack: ["React", "Vite", "Canvas API", "Tailwind CSS"],
       githubUrl: "https://github.com/AliWahid1310",
@@ -138,11 +138,7 @@ export default function RealProjects() {
   ];
 
   const getPreviewSource = (proj: Project) => {
-    if (proj.snapshot) return proj.snapshot;
-    if (proj.liveUrl) {
-      return `https://api.microlink.io/?url=${encodeURIComponent(proj.liveUrl)}&screenshot=true&meta=false&embed=screenshot.url`;
-    }
-    return "";
+    return proj.snapshot || "";
   };
 
   const filtered = projects
@@ -322,6 +318,7 @@ export default function RealProjects() {
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
+                          objectPosition: "top center",
                           transition: "transform 0.4s ease",
                         }}
                         onMouseEnter={(e) => {
