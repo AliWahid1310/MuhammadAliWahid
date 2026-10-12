@@ -38,6 +38,19 @@ export default function RealProjects() {
 
   const projects: Project[] = [
     {
+      id: "meterflow",
+      title: "MeterFlow",
+      tagline: "Production-grade LLM usage metering, quota enforcement & Stripe billing engine",
+      category: "backend",
+      badge: "Infrastructure",
+      snapshot: "/images/MeterFlow.png",
+      liveUrl: undefined,
+      techStack: ["Next.js", "Express", "SQLite", "Stripe", "TypeScript"],
+      githubUrl: "https://github.com/AliWahid1310/llm-meter",
+      icon: Zap,
+      accent: "#eab308",
+    },
+    {
       id: "circl",
       title: "Circl",
       tagline: "Campus community hub for student societies, events & real-time connections",
