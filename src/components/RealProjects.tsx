@@ -81,7 +81,7 @@ export default function RealProjects() {
       tagline: "ML ensemble stock forecasting with live Plotly charts",
       category: "ai",
       badge: "Machine Learning",
-      snapshot: "",
+      snapshot: "/images/StockAI%20Pro.png",
       techStack: ["Python", "Streamlit", "scikit-learn", "pandas"],
       githubUrl: "https://github.com/AliWahid1310",
       icon: Sparkles,
