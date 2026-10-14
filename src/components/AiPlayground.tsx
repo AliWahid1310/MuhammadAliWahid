@@ -47,15 +47,15 @@ export default function AiPlayground() {
     },
     {
       id: "visualboost-yolo",
-      name: "VisualBoost YOLOv8 Vision Pipeline",
-      type: "Real-Time Object Detection & Spatial Segmentation",
-      parameters: "YOLOv8x Deep PyTorch Backbone",
-      baseTtft: 22.5,
-      baseTps: 78.2,
-      vramBase: 12.4,
+      name: "VisualBoost YOLOv8 & DIP Pipeline",
+      type: "Quality Scoring, DIP (CLAHE/GrabCut) & YOLOv8 Framing",
+      parameters: "Ultralytics YOLOv8n + OpenCV DIP Engine",
+      baseTtft: 18.2,
+      baseTps: 92.4,
+      vramBase: 4.8,
       metricLabel: "frames / sec",
       sampleOutput:
-        "Processing multi-resolution frame buffer... TensorRT FP8 kernel executed across 8 parallel streams. Detected 14 foreground objects (person: 0.98, vehicle: 0.96). Sub-45ms spatial coordinates rasterized into client canvas."
+        "Evaluating image quality matrix: Sharpness (Laplacian var: 86.4), Contrast: 78.2, PSNR: 39.2 dB, SSIM: 0.95. YOLOv8n identified 4 foreground subjects with 0.97 confidence. Multi-stage CLAHE and GrabCut transparent mask generated in 34ms."
     },
     {
       id: "stockai-ensemble",

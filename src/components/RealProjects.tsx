@@ -15,8 +15,19 @@ import {
   Search,
   Zap,
   ImageIcon,
+  X,
+  CheckCircle2,
 } from "lucide-react";
 import { GithubIcon } from "./Icons";
+
+interface ProjectDeepDive {
+  summary: string;
+  sections: {
+    title: string;
+    items: { name: string; desc: string }[];
+  }[];
+  apiEndpoints?: { method: string; path: string; desc: string }[];
+}
 
 interface Project {
   id: string;
@@ -30,11 +41,13 @@ interface Project {
   githubUrl: string;
   icon: React.ElementType;
   accent: string;
+  architectureDetails?: ProjectDeepDive;
 }
 
 export default function RealProjects() {
   const [filter, setFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedDeepDive, setSelectedDeepDive] = useState<Project | null>(null);
 
   const projects: Project[] = [
     {
@@ -49,6 +62,32 @@ export default function RealProjects() {
       githubUrl: "https://github.com/AliWahid1310/llm-meter",
       icon: Zap,
       accent: "#eab308",
+      architectureDetails: {
+        summary:
+          "Production-grade API usage metering, quota enforcement, and Stripe billing engine designed for LLM platform providers. Delivers sub-millisecond pre-action quota validation, integer micro-dollar arithmetic, and resilient idempotency.",
+        sections: [
+          {
+            title: "Core Infrastructure",
+            items: [
+              { name: "Deterministic Math", desc: "Integer arithmetic (micro-dollars) preventing floating-point rounding errors in high-volume token accounting." },
+              { name: "Quota Integrity", desc: "Boundary checks with HTTP 429 quota exhaustion guardrails and atomic transactional deduction." },
+              { name: "Idempotency & Deduplication", desc: "SHA-256 idempotency key deduplication cache preventing duplicate billing on retry storms." },
+            ],
+          },
+          {
+            title: "Tech Stack & Integration",
+            items: [
+              { name: "Backend Engine", desc: "Express.js + TypeScript service layer with SQLite WAL persistence and automated Stripe customer synchronization." },
+              { name: "Frontend Console", desc: "Next.js dashboard with interactive API request simulator, tier breakdown, and real-time usage metrics." },
+            ],
+          },
+        ],
+        apiEndpoints: [
+          { method: "POST", path: "/api/generate", desc: "Simulates LLM inference call with token metering and balance validation" },
+          { method: "GET", path: "/api/usage", desc: "Fetches aggregated token consumption and micro-dollar spend" },
+          { method: "POST", path: "/api/checkout", desc: "Creates Stripe customer portal and balance replenishment session" },
+        ],
+      },
     },
     {
       id: "circl",
@@ -79,14 +118,95 @@ export default function RealProjects() {
     {
       id: "visualboost-ai",
       title: "VisualBoost AI",
-      tagline: "Real-time object detection with YOLOv8, FastAPI & Docker",
+      tagline:
+        "Full-stack computer vision & DIP platform with Next.js 15, FastAPI, OpenCV (CLAHE, GrabCut) & YOLOv8 for real-time quality scoring, enhancement pipelines & smart framing",
       category: "ai",
-      badge: "AI / Vision",
-      snapshot: "",
-      techStack: ["Next.js", "FastAPI", "YOLOv8", "Docker"],
+      badge: "Vision & DIP Platform",
+      snapshot: "/images/VB_AI.png",
+      techStack: [
+        "Next.js 15",
+        "FastAPI",
+        "OpenCV",
+        "YOLOv8",
+        "Python",
+        "Tailwind CSS",
+        "Framer Motion",
+      ],
       githubUrl: "https://github.com/AliWahid1310",
       icon: Cpu,
       accent: "#8b5cf6",
+      architectureDetails: {
+        summary:
+          "VisualBoost AI is a full-stack, portfolio-grade computer vision platform designed for digital creators, e-commerce sellers, and Digital Image Processing (DIP) workflows. It combines a Next.js 15 App Router frontend with a FastAPI + OpenCV + YOLOv8 backend to deliver real-time image quality evaluation, AI suggestions, enhancement pipelines, platform-specific presets, and object detection.",
+        sections: [
+          {
+            title: "Frontend Architecture",
+            items: [
+              {
+                name: "Framework",
+                desc: "Next.js 15 (App Router) with React 19, TypeScript, and server/client component optimization.",
+              },
+              {
+                name: "Styling & UI",
+                desc: "Tailwind CSS with custom glassmorphism, glow accents, Lucide React icons, and next-themes reactive dark/light UI.",
+              },
+              {
+                name: "Animations & Interaction",
+                desc: "Framer Motion micro-interactions, split-view before/after comparison slider, and interactive SVG quality score gauges.",
+              },
+            ],
+          },
+          {
+            title: "Backend & Vision Engine",
+            items: [
+              {
+                name: "FastAPI & Uvicorn",
+                desc: "Asynchronous Python REST API service with Pydantic v2 schemas and multipart/form-data upload pipelines.",
+              },
+              {
+                name: "OpenCV DIP Pipeline",
+                desc: "CLAHE (L-channel in LAB space), Laplacian operator focus variance, Gaussian blur, Fast Non-Local Means (NLM) color denoising, and GrabCut segmentation.",
+              },
+              {
+                name: "Ultralytics YOLOv8",
+                desc: "Real-time multi-class object detection using YOLOv8 nano (yolov8n.pt) for subject bounding boxes and smart center-weighted framing suggestions.",
+              },
+              {
+                name: "Scientific Quality Validation",
+                desc: "PSNR (Peak Signal-to-Noise Ratio) & SSIM (Structural Similarity Index) calculations to scientifically verify enhancement fidelity.",
+              },
+            ],
+          },
+          {
+            title: "Core DIP & E-Commerce Features",
+            items: [
+              {
+                name: "Quality Scoring",
+                desc: "Weighted composite score of Brightness (22%), Sharpness via Laplacian variance (30%), Contrast (26%), and Noise residual variance (22%).",
+              },
+              {
+                name: "Multi-Stage Auto Enhance",
+                desc: "NLM color denoising + CLAHE + unsharp masking + detail enhancement + gamma LUT shadow recovery.",
+              },
+              {
+                name: "Platform Optimizers",
+                desc: "Automated crop and aspect ratio adaptation for Instagram Post (1:1), Instagram Story (9:16), Shopify Product (1:1), Daraz (1:1), and Amazon (1:1).",
+              },
+              {
+                name: "Background Segmentation",
+                desc: "OpenCV GrabCut with Gaussian Mixture Models (GMMs) for transparent RGBA or clean white studio composite export.",
+              },
+            ],
+          },
+        ],
+        apiEndpoints: [
+          { method: "GET", path: "/health", desc: "Returns service health and model status" },
+          { method: "GET", path: "/", desc: "Root status and interactive OpenAPI documentation link" },
+          { method: "POST", path: "/analyze", desc: "Computes quality metrics, severity-tagged suggestions, and YOLOv8 detections" },
+          { method: "POST", path: "/enhance", desc: "Applies enhancement filters: auto, brightness, contrast, sharpen, denoise" },
+          { method: "POST", path: "/optimize", desc: "Optimizes, resizes, and crops for targeted e-commerce platforms" },
+        ],
+      },
     },
     {
       id: "stockai-pro",
@@ -511,22 +631,56 @@ export default function RealProjects() {
                       borderTop: "1px solid var(--border-light)",
                       marginTop: "auto",
                       gap: "8px",
+                      flexWrap: "wrap",
                     }}
                   >
-                    <a
-                      href={proj.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline"
-                      style={{
-                        padding: "5px 12px",
-                        fontSize: "0.78rem",
-                        gap: "6px",
-                      }}
-                    >
-                      <GithubIcon className="w-4 h-4" />
-                      <span>Source</span>
-                    </a>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <a
+                        href={proj.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-outline"
+                        style={{
+                          padding: "5px 12px",
+                          fontSize: "0.78rem",
+                          gap: "6px",
+                        }}
+                      >
+                        <GithubIcon className="w-4 h-4" />
+                        <span>Source</span>
+                      </a>
+
+                      {proj.architectureDetails && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDeepDive(proj)}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            padding: "5px 11px",
+                            fontSize: "0.78rem",
+                            fontWeight: 600,
+                            borderRadius: "var(--radius-sm)",
+                            border: `1px solid ${proj.accent}40`,
+                            background: `${proj.accent}12`,
+                            color: proj.accent,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.background = `${proj.accent}22`;
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.background = `${proj.accent}12`;
+                          }}
+                          title="View system architecture & specification"
+                        >
+                          <Layers style={{ width: "13px", height: "13px" }} />
+                          <span>Specs</span>
+                        </button>
+                      )}
+                    </div>
 
                     {proj.liveUrl ? (
                       <a
@@ -594,6 +748,358 @@ export default function RealProjects() {
             );
           })}
         </div>
+
+        {/* Architecture Deep Dive Modal */}
+        {selectedDeepDive && selectedDeepDive.architectureDetails && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+              backgroundColor: "rgba(0, 0, 0, 0.75)",
+              backdropFilter: "blur(8px)",
+            }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedDeepDive(null);
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "780px",
+                maxHeight: "88vh",
+                overflowY: "auto",
+                backgroundColor: "var(--bg-card)",
+                borderRadius: "var(--radius-lg, 16px)",
+                border: "1px solid var(--border-light)",
+                boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
+                padding: "28px",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                  paddingBottom: "16px",
+                  borderBottom: "1px solid var(--border-light)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div
+                    style={{
+                      width: "42px",
+                      height: "42px",
+                      borderRadius: "var(--radius-sm)",
+                      background: `${selectedDeepDive.accent}18`,
+                      border: `1px solid ${selectedDeepDive.accent}35`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: selectedDeepDive.accent,
+                    }}
+                  >
+                    {React.createElement(selectedDeepDive.icon, { style: { width: "22px", height: "22px" } })}
+                  </div>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: "1.3rem",
+                          fontWeight: 700,
+                          color: "var(--text-dark)",
+                        }}
+                      >
+                        {selectedDeepDive.title}
+                      </h3>
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          fontFamily: "var(--font-mono)",
+                          fontWeight: 700,
+                          color: selectedDeepDive.accent,
+                          background: `${selectedDeepDive.accent}15`,
+                          padding: "2px 8px",
+                          borderRadius: "var(--radius-full)",
+                          border: `1px solid ${selectedDeepDive.accent}30`,
+                        }}
+                      >
+                        {selectedDeepDive.badge}
+                      </span>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: "0.78rem",
+                        fontFamily: "var(--font-mono)",
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      System Architecture & Technical Specifications
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedDeepDive(null)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "6px",
+                    borderRadius: "var(--radius-sm)",
+                    color: "var(--text-muted)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "color 0.2s ease, background 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--text-dark)";
+                    (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-secondary, rgba(0,0,0,0.05))";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  }}
+                  aria-label="Close modal"
+                >
+                  <X style={{ width: "20px", height: "20px" }} />
+                </button>
+              </div>
+
+              {/* Overview Summary */}
+              <div
+                style={{
+                  background: `linear-gradient(135deg, ${selectedDeepDive.accent}0a 0%, var(--bg-card) 100%)`,
+                  padding: "16px",
+                  borderRadius: "var(--radius-md)",
+                  border: `1px solid ${selectedDeepDive.accent}20`,
+                }}
+              >
+                <h4
+                  style={{
+                    margin: "0 0 6px 0",
+                    fontSize: "0.75rem",
+                    fontFamily: "var(--font-mono)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: selectedDeepDive.accent,
+                    fontWeight: 700,
+                  }}
+                >
+                  Platform Overview
+                </h4>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "0.88rem",
+                    lineHeight: "1.6",
+                    color: "var(--text-body)",
+                  }}
+                >
+                  {selectedDeepDive.architectureDetails.summary}
+                </p>
+              </div>
+
+              {/* Architecture Sections */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {selectedDeepDive.architectureDetails.sections.map((sec, sIdx) => (
+                  <div key={sIdx}>
+                    <h4
+                      style={{
+                        margin: "0 0 10px 0",
+                        fontSize: "0.8rem",
+                        fontFamily: "var(--font-mono)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        color: "var(--text-dark)",
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <CheckCircle2 style={{ width: "14px", height: "14px", color: selectedDeepDive.accent }} />
+                      <span>{sec.title}</span>
+                    </h4>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                        gap: "8px",
+                      }}
+                    >
+                      {sec.items.map((it, iIdx) => (
+                        <div
+                          key={iIdx}
+                          style={{
+                            padding: "10px 12px",
+                            borderRadius: "var(--radius-sm)",
+                            background: "var(--bg-secondary, rgba(0,0,0,0.03))",
+                            border: "1px solid var(--border-light)",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: "0.8rem",
+                              fontWeight: 700,
+                              color: "var(--text-dark)",
+                              marginBottom: "3px",
+                            }}
+                          >
+                            {it.name}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.78rem",
+                              lineHeight: "1.45",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            {it.desc}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* API Endpoints Reference */}
+              {selectedDeepDive.architectureDetails.apiEndpoints && (
+                <div>
+                  <h4
+                    style={{
+                      margin: "0 0 10px 0",
+                      fontSize: "0.8rem",
+                      fontFamily: "var(--font-mono)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      color: "var(--text-dark)",
+                      fontWeight: 700,
+                    }}
+                  >
+                    API Endpoints Reference
+                  </h4>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                      background: "var(--bg-secondary, rgba(0,0,0,0.03))",
+                      padding: "10px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--border-light)",
+                    }}
+                  >
+                    {selectedDeepDive.architectureDetails.apiEndpoints.map((ep, eIdx) => (
+                      <div
+                        key={eIdx}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                          padding: "6px 8px",
+                          borderRadius: "var(--radius-sm)",
+                          background: "var(--bg-card)",
+                          border: "1px solid var(--border-light)",
+                          fontSize: "0.78rem",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontWeight: 700,
+                              fontSize: "0.7rem",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              backgroundColor: ep.method === "GET" ? "rgba(16,185,129,0.15)" : "rgba(59,130,246,0.15)",
+                              color: ep.method === "GET" ? "#059669" : "#2563eb",
+                            }}
+                          >
+                            {ep.method}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontWeight: 600,
+                              color: "var(--text-dark)",
+                            }}
+                          >
+                            {ep.path}
+                          </span>
+                        </div>
+                        <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>
+                          {ep.desc}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Modal Footer */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: "16px",
+                  borderTop: "1px solid var(--border-light)",
+                  marginTop: "auto",
+                }}
+              >
+                <a
+                  href={selectedDeepDive.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-outline"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 14px",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  <GithubIcon className="w-4 h-4" />
+                  <span>GitHub Repository</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSelectedDeepDive(null)}
+                  style={{
+                    padding: "6px 16px",
+                    borderRadius: "var(--radius-sm)",
+                    background: selectedDeepDive.accent,
+                    color: "#fff",
+                    border: "none",
+                    fontWeight: 600,
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  Close Specification
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
